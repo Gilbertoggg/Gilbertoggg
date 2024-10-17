@@ -1,21 +1,19 @@
 import cv2
+import tensorflow as tf
 
-# Carregar um classificador pré-treinado para carros
-car_cascade = cv2.CascadeClassifier('cars.xml')
+# Carregar um modelo pré-treinado (por exemplo, MobileNetV2)
+model = tf.keras.applications.MobileNetV2(weights='imagenet')
 
-# Carregar uma imagem
-img = cv2.imread('imagem_com_carro_e_pessoa.jpg')
+# Carregar a imagem e pré-processá-la para o modelo
+img = cv2.imread('imagem_com_sombras.jpg')
+img = cv2.resize(img, (224, 224))  # Tamanho de entrada esperado pelo modelo
+img_tensor = tf.keras.preprocessing.image.img_to_array(img)
+img_tensor /= 255.
 
-# Converter para escala de cinza
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+# Fazer a predição
+predictions = model.predict(img_tensor[np.newaxis, ...])
+predicted_class = np.argmax(predictions[0])
 
-# Detectar carros
-cars = car_cascade.detectMultiScale(gray, 1.1, 4)
-
-# Desenhar retângulos em torno dos carros detectados
-for (x,y,w,h) in cars:
-    cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
-
-# Mostrar a imagem com os carros detectados
-cv2.imshow('Carros Detectados', img)
-cv2.waitKey(0)
+# Obter o nome da classe prevista (assumindo que você tem um mapeamento de classes)
+class_names = ['árvore', 'portal', 'casa', ...]
+print("A imagem contém:", class_names[predicted_class])
